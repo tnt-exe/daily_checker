@@ -1,9 +1,13 @@
 import 'package:daily_checker/daily_jobs_screen.dart';
+import 'package:daily_checker/firebase_options.dart';
 import 'package:daily_checker/login.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const DailyChecker());
 }
 

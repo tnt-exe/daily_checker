@@ -1,5 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class DailyJobsScreen extends StatefulWidget {
   const DailyJobsScreen({super.key});
@@ -9,56 +9,93 @@ class DailyJobsScreen extends StatefulWidget {
 }
 
 class _DailyJobsScreenState extends State<DailyJobsScreen> {
-  final List<String> _jobTitles = ['Job 1', 'Job 2', 'Job 3'];
-  late List<bool> _jobCompletionStatus;
-  late SharedPreferences _prefs;
+  List<Map<String, dynamic>> _jobList = [];
+  bool _dataLoaded = false;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
     super.initState();
-    _jobCompletionStatus = List<bool>.filled(_jobTitles.length, false);
-    _initSharedPreferences();
+    _loadJobDataAndResetStatus();
   }
 
-  Future<void> _initSharedPreferences() async {
-    _prefs = await SharedPreferences.getInstance();
-    _loadJobStatus();
-  }
+  Future<void> _loadJobDataAndResetStatus() async {
+    final CollectionReference jobsCollection = _firestore.collection('jobs');
+    final QuerySnapshot daySnapshot = await _firestore.collection('day').get();
 
-  void _loadJobStatus() {
-    final String? lastResetDate = _prefs.getString('lastResetDate');
-    final String currentDate = DateTime.now().toIso8601String().substring(
-      0,
-      10,
-    );
+    try {
+      final QuerySnapshot jobSnapshot = await jobsCollection.get();
 
-    if (lastResetDate != currentDate) {
+      if (jobSnapshot.docs.isNotEmpty) {
+        _jobList = jobSnapshot.docs.map((doc) {
+          return {
+            'id': doc.id,
+            'name': doc['name'] as String,
+            'status': doc['status'] as bool,
+          };
+        }).toList();
+
+        final DateTime today = _getOnlyDate(DateTime.now());
+        if (daySnapshot.docs.isEmpty) {
+          await _firestore.collection('day').add({
+            'today': today.toIso8601String().substring(0, 10),
+          });
+        } else {
+          final DateTime jobDate = _getOnlyDate(
+            DateTime.parse(daySnapshot.docs.first['today'] as String),
+          );
+
+          if (jobDate.isBefore(today)) {
+            debugPrint("Resetting job status for a new day");
+
+            await _firestore
+                .collection('day')
+                .doc(daySnapshot.docs.first.id)
+                .update({'today': today.toIso8601String().substring(0, 10)});
+
+            final WriteBatch batch = _firestore.batch();
+            for (final job in _jobList) {
+              final docRef = jobsCollection.doc(job['id'] as String);
+              job['status'] = false;
+              batch.update(docRef, {'status': false});
+            }
+            await batch.commit();
+          }
+        }
+      }
+
       setState(() {
-        _jobCompletionStatus = List<bool>.filled(_jobTitles.length, false);
+        _dataLoaded = true;
       });
-      _prefs.setString('lastResetDate', currentDate);
-      _saveJobStatus();
-    } else {
-      for (int i = 0; i < _jobTitles.length; i++) {
+    } catch (e) {
+      debugPrint("Error loading/resetting job data: $e");
+      setState(() {
+        _dataLoaded = true;
+      });
+    }
+  }
+
+  DateTime _getOnlyDate(DateTime dateTime) {
+    return DateTime(dateTime.year, dateTime.month, dateTime.day);
+  }
+
+  Future<void> _updateJobStatus(String jobId, bool newStatus) async {
+    final DocumentReference jobDocRef = _firestore
+        .collection('jobs')
+        .doc(jobId);
+
+    try {
+      await jobDocRef.update({'status': newStatus});
+
+      final index = _jobList.indexWhere((job) => job['id'] as String == jobId);
+      if (index != -1) {
         setState(() {
-          _jobCompletionStatus[i] =
-              _prefs.getBool('job_${i}_completed') ?? false;
+          _jobList[index]['status'] = newStatus;
         });
       }
+    } catch (e) {
+      debugPrint("Error updating job status: $e");
     }
-  }
-
-  void _saveJobStatus() {
-    for (int i = 0; i < _jobTitles.length; i++) {
-      _prefs.setBool('job_${i}_completed', _jobCompletionStatus[i]);
-    }
-  }
-
-  void _toggleJobCompletion(int index) {
-    setState(() {
-      _jobCompletionStatus[index] = !_jobCompletionStatus[index];
-    });
-    _saveJobStatus();
   }
 
   @override
@@ -72,42 +109,49 @@ class _DailyJobsScreenState extends State<DailyJobsScreen> {
         ),
         centerTitle: true,
       ),
-      body: Center(
-        child: SizedBox(
-          width: screenWidth < 1200 ? screenWidth : screenWidth / 2,
-          child: ListView.builder(
-            itemCount: _jobTitles.length,
-            itemBuilder: (context, index) {
-              return Card(
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
-                ),
-                elevation: 2.0,
-                child: CheckboxListTile(
-                  title: Text(
-                    _jobTitles[index],
-                    style: TextStyle(
-                      decoration: _jobCompletionStatus[index]
-                          ? TextDecoration.lineThrough
-                          : TextDecoration.none,
-                      color: _jobCompletionStatus[index]
-                          ? Colors.grey[600]
-                          : Colors.black,
-                    ),
-                  ),
-                  value: _jobCompletionStatus[index],
-                  onChanged: (bool? newValue) {
-                    _toggleJobCompletion(index);
+      body: !_dataLoaded
+          ? const Center(child: CircularProgressIndicator())
+          : Center(
+              child: SizedBox(
+                width: screenWidth < 1200 ? screenWidth : screenWidth / 2,
+                child: ListView.builder(
+                  itemCount: _jobList.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 8.0,
+                      ),
+                      elevation: 2.0,
+                      child: CheckboxListTile(
+                        title: Text(
+                          _jobList[index]['name'] as String,
+                          style: TextStyle(
+                            decoration: _jobList[index]['status'] as bool
+                                ? TextDecoration.lineThrough
+                                : TextDecoration.none,
+                            color: _jobList[index]['status'] as bool
+                                ? Colors.grey[600]
+                                : Colors.black,
+                          ),
+                        ),
+                        value: _jobList[index]['status'] as bool,
+                        onChanged: (bool? newValue) {
+                          if (newValue != null) {
+                            _updateJobStatus(
+                              _jobList[index]['id'] as String,
+                              newValue,
+                            );
+                          }
+                        },
+                        activeColor: Colors.green,
+                        controlAffinity: ListTileControlAffinity.leading,
+                      ),
+                    );
                   },
-                  activeColor: Colors.green,
-                  controlAffinity: ListTileControlAffinity.leading,
                 ),
-              );
-            },
-          ),
-        ),
-      ),
+              ),
+            ),
     );
   }
 }
