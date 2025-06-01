@@ -1,0 +1,22 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "daily-checker-69ac0",
+          "appId": "1:968280027689:android:d48c9aee21460e01bee238",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "daily-checker-69ac0",
+          "configurations": {
+            "android": "1:968280027689:android:d48c9aee21460e01bee238",
+            "web": "1:968280027689:web:98f03cc78c957f94bee238"
+          }
+        }
+      }
+    }
+  }
+}

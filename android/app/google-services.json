@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "968280027689",
+    "project_id": "daily-checker-69ac0",
+    "storage_bucket": "daily-checker-69ac0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:968280027689:android:d48c9aee21460e01bee238",
+        "android_client_info": {
+          "package_name": "exe.tnt.dailychecker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-fzjwES6O5RHzExz9CNQ_pBt9GNnzssI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,4 +1,4 @@
-package com.example.daily_checker
+package exe.tnt.dailychecker
 
 import io.flutter.embedding.android.FlutterActivity
 
