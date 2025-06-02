@@ -31,6 +31,8 @@ class _DailyJobsScreenState extends State<DailyJobsScreen> {
       if (jobDay.isBefore(today)) {
         await jobService.resetJobsStatus();
         await dayService.resetJobDay();
+      } else {
+        await jobService.resetJobList();
       }
 
       setState(() {
@@ -111,9 +113,7 @@ class _DailyJobsScreenState extends State<DailyJobsScreen> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await jobService.resetJobList();
-          _jobList = await jobService.getJobs();
-          setState(() {});
+          await _loadJobDataAndResetStatus();
         },
         tooltip: 'Refresh Job List',
         child: const Icon(Icons.refresh),
