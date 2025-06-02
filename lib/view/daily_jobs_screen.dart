@@ -34,6 +34,7 @@ class _DailyJobsScreenState extends State<DailyJobsScreen> {
       } else {
         await jobService.resetJobList();
       }
+      _jobList = await jobService.getJobs();
 
       setState(() {
         _dataLoaded = true;
