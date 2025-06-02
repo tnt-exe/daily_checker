@@ -15,13 +15,14 @@ class DaysService {
         .get();
 
     if (daySnapshot.docs.isEmpty) {
-      final DateTime today = DateUtils.dateOnly(DateTime.now());
+      final DateTime today = DateUtils.dateOnly(
+        DateTime.now(),
+      ).add(const Duration(hours: 3));
       await _firestore.collection('day').add({'today': today});
       return today;
     } else {
-      final DateTime jobDate = DateUtils.dateOnly(
-        (daySnapshot.docs.first['today'] as Timestamp).toDate(),
-      );
+      final DateTime jobDate = (daySnapshot.docs.first['today'] as Timestamp)
+          .toDate();
       return jobDate;
     }
   }
@@ -31,7 +32,7 @@ class DaysService {
 
     final DateTime today = DateUtils.dateOnly(DateTime.now());
     await _firestore.collection('day').doc(daySnapshot.docs.first.id).update({
-      'today': today,
+      'today': today.add(const Duration(hours: 3)),
     });
   }
 }

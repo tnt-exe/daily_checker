@@ -25,7 +25,7 @@ class _DailyJobsScreenState extends State<DailyJobsScreen> {
   Future<void> _loadJobDataAndResetStatus() async {
     try {
       final DateTime jobDay = await dayService.getJobDay();
-      final DateTime today = DateUtils.dateOnly(DateTime.now());
+      final DateTime today = DateTime.now();
 
       _jobList = await jobService.getJobs();
       if (jobDay.isBefore(today)) {
