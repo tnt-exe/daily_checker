@@ -70,25 +70,22 @@ class _DailyJobsScreenState extends State<DailyJobsScreen> {
                   itemCount: _jobList.length,
                   itemBuilder: (context, index) {
                     return Card(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 8.0,
-                      ),
+                      margin: const .symmetric(horizontal: 16.0, vertical: 8.0),
                       color: Colors.grey[900],
                       elevation: 2.0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                        borderRadius: .circular(8.0),
                       ),
                       child: CheckboxListTile(
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                          borderRadius: .circular(8.0),
                         ),
                         title: Text(
                           _jobList[index].name,
                           style: TextStyle(
                             decoration: _jobList[index].status
-                                ? TextDecoration.lineThrough
-                                : TextDecoration.none,
+                                ? .lineThrough
+                                : .none,
                             color: _jobList[index].status
                                 ? Colors.grey[600]
                                 : Colors.white,
@@ -105,7 +102,7 @@ class _DailyJobsScreenState extends State<DailyJobsScreen> {
                           }
                         },
                         activeColor: Colors.green,
-                        controlAffinity: ListTileControlAffinity.leading,
+                        controlAffinity: .leading,
                       ),
                     );
                   },

@@ -20,7 +20,7 @@ class DailyChecker extends StatelessWidget {
       title: 'Daily Jobs',
       themeMode: ThemeMode.dark,
       theme: ThemeData(
-        brightness: Brightness.dark,
+        brightness: .dark,
         colorSchemeSeed: Colors.deepPurpleAccent,
       ),
       home: kIsWeb ? const LoginPage() : const DailyJobsScreen(),

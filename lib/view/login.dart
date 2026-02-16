@@ -62,11 +62,11 @@ class _LoginPageState extends State<LoginPage> {
       appBar: const CustomAppBar(),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: const .symmetric(horizontal: 16.0),
           child: SizedBox(
             width: screenWidth < 1200 ? screenWidth : screenWidth * 0.4,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize: .min,
               children: [
                 const Spacer(),
                 TextField(
@@ -84,27 +84,21 @@ class _LoginPageState extends State<LoginPage> {
                 ElevatedButton(
                   onPressed: _login,
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 15,
-                    ),
+                    padding: const .symmetric(horizontal: 40, vertical: 15),
                     elevation: 0,
                     shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        bottomRight: Radius.circular(12),
-                        topRight: Radius.circular(4),
-                        bottomLeft: Radius.circular(4),
+                      borderRadius: .only(
+                        topLeft: .circular(12),
+                        bottomRight: .circular(12),
+                        topRight: .circular(4),
+                        bottomLeft: .circular(4),
                       ),
                     ),
                     backgroundColor: Theme.of(context).colorScheme.primary,
                   ),
                   child: const Text(
                     'Access',
-                    style: TextStyle(
-                      color: Colors.black54,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(color: Colors.black54, fontWeight: .bold),
                   ),
                 ),
                 const Spacer(flex: 5),
